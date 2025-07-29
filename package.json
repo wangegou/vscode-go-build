@@ -1,0 +1,134 @@
+{
+  "name": "vscode-go-build",
+  "displayName": "Go Build Extension",
+  "icon": "images/icon.png",
+  "description": "提供可视化Go编译配置界面的VSCode插件，支持交叉编译、竞态检测、实时命令预览等功能",
+  "version": "0.0.1",
+  "author": "wangergou <huxue9890@gmail.com>",
+  "publisher": "wangergou",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangergou/vscode-go-build.git"
+  },
+  "homepage": "https://github.com/wangergou/vscode-go-build",
+  "bugs": {
+    "url": "https://github.com/wangergou/vscode-go-build/issues"
+  },
+  "keywords": [
+    "go",
+    "golang",
+    "build",
+    "compile",
+    "cross-compile",
+    "工具",
+    "编译",
+    "构建",
+    "交叉编译",
+    "开发工具"
+  ],
+  "galleryBanner": {
+    "color": "#00ADD8",
+    "theme": "dark"
+  },
+  "files": [
+    "out/**/*",
+    "images/**/*",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:go"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "goBuild.showBuildOptions",
+        "title": "显示编译选项",
+        "category": "Go Build"
+      },
+      {
+        "command": "goBuild.buildCurrentFile",
+        "title": "编译当前文件",
+        "category": "Go Build"
+      },
+      {
+        "command": "goBuild.buildProject",
+        "title": "编译整个项目",
+        "category": "Go Build"
+      },
+      {
+        "command": "goBuild.buildAndRun",
+        "title": "编译并运行",
+        "category": "Go Build"
+      },
+      {
+        "command": "goBuild.openBuildPanel",
+        "title": "打开Go编译面板",
+        "category": "Go Build",
+        "icon": "$(tools)"
+      }
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "goBuildContainer",
+          "title": "Go 编译配置",
+          "icon": "$(tools)"
+        }
+      ]
+    },
+    "views": {
+      "goBuildContainer": [
+        {
+          "id": "goBuildPanel",
+          "name": "编译选项",
+          "when": "true",
+          "type": "webview"
+        }
+      ]
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceExtname == .go",
+          "command": "goBuild.showBuildOptions",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Go Build",
+      "properties": {
+        "goBuild.outputDir": {
+          "type": "string",
+          "default": "./bin",
+          "description": "编译输出目录"
+        },
+        "goBuild.showNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "显示编译通知"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/node": "14.x",
+    "typescript": "^4.4.4"
+  }
+}
