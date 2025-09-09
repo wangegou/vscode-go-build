@@ -3,17 +3,17 @@
   "displayName": "Go Build Extension",
   "icon": "images/icon.png",
   "description": "提供可视化Go编译配置界面的VSCode插件，支持交叉编译、竞态检测、实时命令预览等功能",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "wangergou <huxue9890@gmail.com>",
   "publisher": "wangergou",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wangergou/vscode-go-build.git"
+    "url": "https://github.com/wangegou/vscode-go-build.git"
   },
-  "homepage": "https://github.com/wangergou/vscode-go-build",
+  "homepage": "https://github.com/wangegou/vscode-go-build",
   "bugs": {
-    "url": "https://github.com/wangergou/vscode-go-build/issues"
+    "url": "https://github.com/wangegou/vscode-go-build/issues"
   },
   "keywords": [
     "go",

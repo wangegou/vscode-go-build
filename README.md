@@ -83,7 +83,7 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/wangergou/vscode-go-build.git
+git clone https://github.com/wangegou/vscode-go-build.git
 cd vscode-go-build
 
 # 安装依赖
@@ -161,7 +161,9 @@ A: 是的，竞态检测会显著降低性能，仅在开发和测试时使用�
 
 ## 🙏 致谢
 
-感谢所有为这个项目做出贡献的开发者！
+tg:@hellokvm
+
+[yexing](https://github.com/yexing)
 
 ---
 

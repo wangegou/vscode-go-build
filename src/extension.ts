@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { platform } from 'os';
 
 const execAsync = promisify(exec);
 
@@ -22,7 +23,7 @@ class GoBuildConfigProvider implements vscode.WebviewViewProvider {
         enableRace: false,
         enableOptimization: true,
         stripSymbols: false,
-        cgoEnabled: true
+        cgoEnabled: false
     };
 
     constructor(private readonly _extensionUri: vscode.Uri) {}
@@ -102,16 +103,38 @@ class GoBuildConfigProvider implements vscode.WebviewViewProvider {
             throw new Error('请先打开一个Go工作区');
         }
         
-        let command = 'go build';
+        let isWindows = process.platform == 'win32'
+        let command;        
+        // 设置CGO环境变量
+        const cgoEnabled = this.config.cgoEnabled ? '1' : '0';
         
+        // 设置交叉编译环境变量
+        let goos = this.config.targetOS === 'current' ? process.env.GOOS || process.platform : this.config.targetOS;
+        let goarch = this.config.targetArch === 'current' ? process.env.GOARCH || process.arch : this.config.targetArch;
+
+        if(goos == 'win32')
+            goos = 'windows';
+        if(goarch == 'x64')
+            goarch = 'amd64';
+        if(goarch == 'ia32')
+            goarch = '386';
+
+        if(isWindows) {
+            command = `set CGO_ENABLED=${cgoEnabled}&&set GOOS=${goos}&&set GOARCH=${goarch}&&`;
+        } else {
+            command = `CGO_ENABLED=${cgoEnabled} GOOS=${goos} GOARCH=${goarch} `;
+        }
+
+        command += 'go build';
+
         // 添加输出文件名
         if (this.config.outputName) {
             command += ` -o ${this.config.outputDir}/${this.config.outputName}`;
         } else {
             const projectName = path.basename(workspaceFolder.uri.fsPath);
-            command += ` -o ${this.config.outputDir}/${projectName}`;
+            command += ` -o ${this.config.outputDir}/${projectName}-${goos}-${goarch}${isWindows ? '.exe' : ''}`;
         }
-        
+
         // 添加竞态检测
         if (this.config.enableRace) {
             command += ' -race';
@@ -128,19 +151,8 @@ class GoBuildConfigProvider implements vscode.WebviewViewProvider {
             command += ' -gcflags "-N -l"';
         }
         
-        // 设置CGO环境变量
-        const cgoEnabled = this.config.cgoEnabled ? '1' : '0';
-        
-        // 设置交叉编译环境变量
-        if (this.config.targetOS !== 'current' || this.config.targetArch !== 'current') {
-            const goos = this.config.targetOS === 'current' ? process.env.GOOS || process.platform : this.config.targetOS;
-            const goarch = this.config.targetArch === 'current' ? process.env.GOARCH || process.arch : this.config.targetArch;
-            command = `CGO_ENABLED=${cgoEnabled} GOOS=${goos} GOARCH=${goarch} ${command}`;
-        } else {
-            command = `CGO_ENABLED=${cgoEnabled} ${command}`;
-        }
-        
         command += ' .';
+
         return command;
     }
 
@@ -319,6 +331,22 @@ class GoBuildConfigProvider implements vscode.WebviewViewProvider {
                          key: key,
                          value: 'toggle'
                      });
+                     if(key == 'enableRace'  && "${this.config.enableRace}" == 'false' && "${this.config.cgoEnabled}" == 'false') {
+                        // 如果启用竞态检测，自动启用cgo
+                        vscode.postMessage({
+                            type: 'updateConfig',
+                            key: 'cgoEnabled',
+                            value: true
+                        });
+                     }
+                     if(key == 'cgoEnabled'  && "${this.config.enableRace}" == 'true' && "${this.config.cgoEnabled}" == 'true') {
+                        // 如果启用竞态检测，自动启用cgo
+                        vscode.postMessage({
+                            type: 'updateConfig',
+                            key: 'enableRace',
+                            value: false
+                        });
+                     }
                      updateCommandDisplay();
                  }
                  
